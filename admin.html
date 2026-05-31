@@ -244,7 +244,7 @@ function pintarTodo(ctx, key, d, scores, cal, W, H){
       const pos = mc[f], val = scores[m.id+'_'+f];
       if (!pos || val===undefined || val==='') return;
       const isFut = d.type==='score', isTotal = f==='tA'||f==='tB';
-      ctx.fillStyle = isFut ? '#111111' : '#ffffff';
+      ctx.fillStyle = (isFut || isTotal) ? '#111111' : '#ffffff';
       ctx.font = `900 ${isFut?48:isTotal?36:28}px Arial, sans-serif`;
       ctx.fillText(String(val), (pos.x/100)*W, (pos.y/100)*H);
     });
@@ -269,7 +269,7 @@ function abrirVentana(key, d, scores, cal){
       if (!pos || val===undefined || val==='') return;
       const isFut = d.type==='score', isTotal = f==='tA'||f==='tB';
       const fs = isFut ? '4.5vw' : isTotal ? '3.2vw' : '2.6vw';
-      const scoreColor = isFut ? '#111' : '#ffffff';
+      const scoreColor = (isFut || isTotal) ? '#111' : '#ffffff';
       spans += `<span style="position:absolute;left:${pos.x}%;top:${pos.y}%;transform:translate(-50%,-50%);font-weight:900;color:${scoreColor};font-size:${fs};line-height:1;font-family:Arial,sans-serif;pointer-events:none">${val}</span>`;
     });
   });

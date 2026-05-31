@@ -126,7 +126,8 @@ function renderOverlays(key, frame){
       el.style.left = pos.x + '%';
       el.style.top  = pos.y + '%';
       el.style.fontSize = '1.6vw';
-      el.style.color = d.type==='sets' ? '#ffffff' : '#111111';
+      const isTotal = f==='tA' || f==='tB';
+      el.style.color = (d.type==='score' || isTotal) ? '#111111' : '#ffffff';
       el.textContent = val;
       frame.appendChild(el);
     });
