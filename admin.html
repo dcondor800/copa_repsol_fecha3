@@ -65,14 +65,14 @@ const DISC = {
     {id:'ff_fin_c2', sec:'Final', campo:'Campo 2', cA:'cyan', cB:'cyan'}
   ]},
   vo: { name:'Vóley Mixto', image:'voley.png', type:'sets', matches:[
-    {id:'vo_sf_c1',  sec:'Semifinal', campo:'Campo 1', cA:'orange', cB:'white'},
-    {id:'vo_sf_c2',  sec:'Semifinal', campo:'Campo 2', cA:'cyan',   cB:'white'},
-    {id:'vo_fin_c1', sec:'Final',     campo:'Campo 1', cA:'orange', cB:'white'}
+    {id:'vo_sf_c1',  sec:'Semifinal', campo:'Campo 1', cA:'orange', cB:'cyan'},
+    {id:'vo_sf_c2',  sec:'Semifinal', campo:'Campo 2', cA:'cyan',   cB:'orange'},
+    {id:'vo_fin_c1', sec:'Final',     campo:'Campo 1', cA:'orange', cB:'cyan'}
   ]},
   pa: { name:'Pádel', image:'padel.png', type:'sets', matches:[
-    {id:'pa_sf_c1',  sec:'Semifinal', campo:'Campo 1', cA:'orange', cB:'white'},
-    {id:'pa_sf_c2',  sec:'Semifinal', campo:'Campo 2', cA:'cyan',   cB:'white'},
-    {id:'pa_fin_c3', sec:'Final',     campo:'Campo 3', cA:'orange', cB:'white'}
+    {id:'pa_sf_c1',  sec:'Semifinal', campo:'Campo 1', cA:'orange', cB:'cyan'},
+    {id:'pa_sf_c2',  sec:'Semifinal', campo:'Campo 2', cA:'cyan',   cB:'orange'},
+    {id:'pa_fin_c3', sec:'Final',     campo:'Campo 3', cA:'orange', cB:'cyan'}
   ]}
 };
 
@@ -185,12 +185,12 @@ function defaultCal(){
                  nameB:{x:29.2394,y:91.1031},s1B:{x:44.3462,y:91.1645},s2B:{x:54.9448,y:91.1031},s3B:{x:65.1289,y:91.0417},tB:{x:74.8729,y:91.1645}}
     },
     pa:{
-      pa_sf_c1: {nameA:{x:28.5948,y:35.4358},s1A:{x:44.0239,y:35.1289},s2A:{x:54.3462,y:34.9448},s3A:{x:65.0368,y:35.3131},tA:{x:74.8269,y:35.2517},
-                 nameB:{x:29.1013,y:41.717}, s1B:{x:44.3462,y:41.7784},s2B:{x:54.8066,y:41.5328},s3B:{x:65.175, y:41.5942},tB:{x:74.7348,y:41.4101}},
-      pa_sf_c2: {nameA:{x:29.3775,y:57.1823},s1A:{x:44.2081,y:57.2437},s2A:{x:54.3462,y:57.5506},s3A:{x:65.1289,y:57.4893},tA:{x:74.919, y:57.4893},
-                 nameB:{x:29.4696,y:63.7704},s1B:{x:44.3923,y:63.8318},s2B:{x:54.8527,y:63.8932},s3B:{x:65.3131,y:63.8932},tB:{x:75.1492,y:63.8932}},
-      pa_fin_c3:{nameA:{x:29.2855,y:85.7606},s1A:{x:44.07,  y:85.5764},s2A:{x:54.5764,y:85.5764},s3A:{x:65.1289,y:85.6378},tA:{x:75.0571,y:85.822},
-                 nameB:{x:29.4236,y:91.9804},s1B:{x:44.2081,y:91.8576},s2B:{x:54.8527,y:91.7348},s3B:{x:64.9908,y:91.919}, tB:{x:75.1031,y:92.1645}}
+      pa_sf_c1: {nameA:{x:29.49,  y:35.3},   s1A:{x:44.61,  y:35.3},   s2A:{x:54.77,  y:35.21},  s3A:{x:65.0368,y:35.3131},tA:{x:75.21,  y:35.3},
+                 nameB:{x:29.49,  y:41.84},  s1B:{x:44.3462,y:41.7784},s2B:{x:54.97,  y:41.84},  s3B:{x:65.33,  y:41.74},  tB:{x:75.28,  y:41.74}},
+      pa_sf_c2: {nameA:{x:30.18,  y:57.67},  s1A:{x:44.34,  y:57.67},  s2A:{x:54.7,   y:57.67},  s3A:{x:65.47,  y:57.67},  tA:{x:75.07,  y:57.67},
+                 nameB:{x:29.97,  y:63.93},  s1B:{x:44.2,   y:64.03},  s2B:{x:54.83,  y:63.93},  s3B:{x:65.47,  y:63.93},  tB:{x:75.1492,y:63.8932}},
+      pa_fin_c3:{nameA:{x:29.49,  y:86},     s1A:{x:44.06,  y:85.91},  s2A:{x:54.77,  y:85.91},  s3A:{x:65.33,  y:85.91},  tA:{x:75.0571,y:85.822},
+                 nameB:{x:29.4236,y:91.9804},s1B:{x:44.34,  y:92.17},  s2B:{x:54.83,  y:92.17},  s3B:{x:65.33,  y:92.17},  tB:{x:75.1031,y:92.1645}}
     }
   };
 }
@@ -244,7 +244,7 @@ function pintarTodo(ctx, key, d, scores, cal, W, H){
       const pos = mc[f], val = scores[m.id+'_'+f];
       if (!pos || val===undefined || val==='') return;
       const isFut = d.type==='score', isTotal = f==='tA'||f==='tB';
-      ctx.fillStyle = '#111111';
+      ctx.fillStyle = isFut ? '#111111' : '#ffffff';
       ctx.font = `900 ${isFut?48:isTotal?36:28}px Arial, sans-serif`;
       ctx.fillText(String(val), (pos.x/100)*W, (pos.y/100)*H);
     });
@@ -260,8 +260,8 @@ function abrirVentana(key, d, scores, cal){
     ['nameA','nameB'].forEach(f => {
       const pos = mc[f], val = scores[m.id+'_'+f];
       if (!pos || !val) return;
-      const color = COLORS[f==='nameA' ? m.cA : m.cB] || '#fff';
-      spans += `<span style="position:absolute;left:${pos.x}%;top:${pos.y}%;transform:translate(-50%,-50%);font-weight:700;color:${color};font-size:2.2vw;line-height:1;font-family:Arial,sans-serif;pointer-events:none">${val}</span>`;
+      const nameColor = COLORS[f==='nameA' ? m.cA : m.cB] || '#fff';
+      spans += `<span style="position:absolute;left:${pos.x}%;top:${pos.y}%;transform:translate(-50%,-50%);font-weight:700;color:${nameColor};font-size:2.2vw;line-height:1;font-family:Arial,sans-serif;pointer-events:none">${val}</span>`;
     });
     const scoreFs = d.type==='score' ? ['sA','sB'] : ['s1A','s2A','s3A','tA','s1B','s2B','s3B','tB'];
     scoreFs.forEach(f => {
@@ -269,7 +269,8 @@ function abrirVentana(key, d, scores, cal){
       if (!pos || val===undefined || val==='') return;
       const isFut = d.type==='score', isTotal = f==='tA'||f==='tB';
       const fs = isFut ? '4.5vw' : isTotal ? '3.2vw' : '2.6vw';
-      spans += `<span style="position:absolute;left:${pos.x}%;top:${pos.y}%;transform:translate(-50%,-50%);font-weight:900;color:#111;font-size:${fs};line-height:1;font-family:Arial,sans-serif;pointer-events:none">${val}</span>`;
+      const scoreColor = isFut ? '#111' : '#ffffff';
+      spans += `<span style="position:absolute;left:${pos.x}%;top:${pos.y}%;transform:translate(-50%,-50%);font-weight:900;color:${scoreColor};font-size:${fs};line-height:1;font-family:Arial,sans-serif;pointer-events:none">${val}</span>`;
     });
   });
   const popup = window.open('', '_blank', `width=${screen.width},height=${screen.height},scrollbars=yes`);
