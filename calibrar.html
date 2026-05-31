@@ -85,14 +85,14 @@ const DISC = {
     {id:'ff_fin_c2', label:'FIN C2', cA:'cyan', cB:'cyan'}
   ]},
   vo: { name:'Vóley Mixto', image:'voley.png', type:'sets', matches:[
-    {id:'vo_sf_c1',  label:'SF C1', cA:'orange', cB:'white'},
-    {id:'vo_sf_c2',  label:'SF C2', cA:'cyan',   cB:'white'},
-    {id:'vo_fin_c1', label:'FIN C1',cA:'orange', cB:'white'}
+    {id:'vo_sf_c1',  label:'SF C1', cA:'orange', cB:'cyan'},
+    {id:'vo_sf_c2',  label:'SF C2', cA:'cyan',   cB:'orange'},
+    {id:'vo_fin_c1', label:'FIN C1',cA:'orange', cB:'cyan'}
   ]},
   pa: { name:'Pádel', image:'padel.png', type:'sets', matches:[
-    {id:'pa_sf_c1',  label:'SF C1', cA:'orange', cB:'white'},
-    {id:'pa_sf_c2',  label:'SF C2', cA:'cyan',   cB:'white'},
-    {id:'pa_fin_c3', label:'FIN C3',cA:'orange', cB:'white'}
+    {id:'pa_sf_c1',  label:'SF C1', cA:'orange', cB:'cyan'},
+    {id:'pa_sf_c2',  label:'SF C2', cA:'cyan',   cB:'orange'},
+    {id:'pa_fin_c3', label:'FIN C3',cA:'orange', cB:'cyan'}
   ]}
 };
 
@@ -101,28 +101,28 @@ const CAL_KEY = 'fecha3_cal';
 function defaultCal(){
   return {
     fm:{
-      fm_sf_c1: {nameA:{x:30.5372,y:36.5485},sA:{x:43.4855,y:36.7103},sB:{x:57.1262,y:36.6025},nameB:{x:68.9531,y:36.4946}},
-      fm_sf_c3: {nameA:{x:30.0113,y:52.9307},sA:{x:43.4045,y:52.9846},sB:{x:57.0049,y:52.7689},nameB:{x:69.479, y:52.9306}},
+      fm_sf_c1: {nameA:{x:30.92,  y:36.74},  sA:{x:43.3,   y:36.74},  sB:{x:56.88,  y:36.58},  nameB:{x:68.9531,y:36.4946}},
+      fm_sf_c3: {nameA:{x:31.16,  y:52.84},  sA:{x:43.4045,y:52.9846},sB:{x:57.0049,y:52.7689},nameB:{x:69.479, y:52.9306}},
       fm_fin_c2:{nameA:{x:29.6068,y:81.2203},sA:{x:43.3236,y:81.2743},sB:{x:57.0858,y:81.3282},nameB:{x:68.4676,y:81.2743}}
     },
     ff:{
-      ff_fin_c2:{nameA:{x:28.3932,y:58.3482},sA:{x:42.5146,y:58.1864},sB:{x:57.6926,y:58.2943},nameB:{x:71.623, y:58.3482}}
+      ff_fin_c2:{nameA:{x:28.62,  y:58.63},  sA:{x:42.51,  y:58.63},  sB:{x:57.6926,y:58.2943},nameB:{x:71.8,   y:58.63}}
     },
     vo:{
-      vo_sf_c1: {nameA:{x:30.0221,y:33.6378},s1A:{x:44.5304,y:33.6378},s2A:{x:54.6225,y:33.6378},s3A:{x:64.8527,y:33.6378},tA:{x:74.7348,y:33.822},
-                 nameB:{x:30.3444,y:40.4715},s1B:{x:44.3923,y:40.2873},s2B:{x:54.4843,y:40.3487},s3B:{x:65.221, y:40.2259},tB:{x:74.7348,y:40.5942}},
-      vo_sf_c2: {nameA:{x:29.7459,y:56.612}, s1A:{x:44.3002,y:56.8576},s2A:{x:54.8067,y:56.4892},s3A:{x:65.0829,y:56.5506},tA:{x:74.5046,y:56.6734},
-                 nameB:{x:29.8379,y:63.2001},s1B:{x:54.7514,y:63.1387},s2B:{x:44.4014,y:63.2615},s3B:{x:65.0829,y:63.2615},tB:{x:74.5506,y:63.0773}},
-      vo_fin_c1:{nameA:{x:28.9171,y:85.1289},s1A:{x:44.3923,y:84.822}, s2A:{x:54.6685,y:84.9448},s3A:{x:64.6225,y:84.8834},tA:{x:74.5506,y:85.0061},
-                 nameB:{x:29.2394,y:91.1031},s1B:{x:44.3462,y:91.1645},s2B:{x:54.9448,y:91.1031},s3B:{x:65.1289,y:91.0417},tB:{x:74.8729,y:91.1645}}
+      vo_sf_c1: {nameA:{x:30.0221,y:33.6378},s1A:{x:44.5304,y:33.6378},s2A:{x:54.7,   y:33.7},   s3A:{x:64.8527,y:33.6378},tA:{x:74.7348,y:33.822},
+                 nameB:{x:30.3444,y:40.4715},s1B:{x:44.48,  y:40.61},  s2B:{x:54.7,   y:40.52},  s3B:{x:65.06,  y:40.52},  tB:{x:74.7348,y:40.5942}},
+      vo_sf_c2: {nameA:{x:29.7459,y:56.612}, s1A:{x:44.3002,y:56.8576},s2A:{x:54.8067,y:56.4892},s3A:{x:65.0829,y:56.5506},tA:{x:74.72,  y:56.81},
+                 nameB:{x:29.8379,y:63.2001},s1B:{x:54.7514,y:63.1387},s2B:{x:44.4014,y:63.2615},s3B:{x:65.0829,y:63.2615},tB:{x:74.72,  y:63.35}},
+      vo_fin_c1:{nameA:{x:29.63,  y:85.17},  s1A:{x:44.48,  y:85.17},  s2A:{x:54.6685,y:84.9448},s3A:{x:65.06,  y:85.17},  tA:{x:74.79,  y:85.08},
+                 nameB:{x:29.7,   y:91.34},  s1B:{x:44.48,  y:91.25},  s2B:{x:54.9448,y:91.1031},s3B:{x:65.1289,y:91.0417},tB:{x:74.8729,y:91.1645}}
     },
     pa:{
-      pa_sf_c1: {nameA:{x:28.5948,y:35.4358},s1A:{x:44.0239,y:35.1289},s2A:{x:54.3462,y:34.9448},s3A:{x:65.0368,y:35.3131},tA:{x:74.8269,y:35.2517},
-                 nameB:{x:29.1013,y:41.717}, s1B:{x:44.3462,y:41.7784},s2B:{x:54.8066,y:41.5328},s3B:{x:65.175, y:41.5942},tB:{x:74.7348,y:41.4101}},
-      pa_sf_c2: {nameA:{x:29.3775,y:57.1823},s1A:{x:44.2081,y:57.2437},s2A:{x:54.3462,y:57.5506},s3A:{x:65.1289,y:57.4893},tA:{x:74.919, y:57.4893},
-                 nameB:{x:29.4696,y:63.7704},s1B:{x:44.3923,y:63.8318},s2B:{x:54.8527,y:63.8932},s3B:{x:65.3131,y:63.8932},tB:{x:75.1492,y:63.8932}},
-      pa_fin_c3:{nameA:{x:29.2855,y:85.7606},s1A:{x:44.07,  y:85.5764},s2A:{x:54.5764,y:85.5764},s3A:{x:65.1289,y:85.6378},tA:{x:75.0571,y:85.822},
-                 nameB:{x:29.4236,y:91.9804},s1B:{x:44.2081,y:91.8576},s2B:{x:54.8527,y:91.7348},s3B:{x:64.9908,y:91.919}, tB:{x:75.1031,y:92.1645}}
+      pa_sf_c1: {nameA:{x:29.49,  y:35.3},   s1A:{x:44.61,  y:35.3},   s2A:{x:54.77,  y:35.21},  s3A:{x:65.0368,y:35.3131},tA:{x:75.21,  y:35.3},
+                 nameB:{x:29.49,  y:41.84},  s1B:{x:44.3462,y:41.7784},s2B:{x:54.97,  y:41.84},  s3B:{x:65.33,  y:41.74},  tB:{x:75.28,  y:41.74}},
+      pa_sf_c2: {nameA:{x:30.18,  y:57.67},  s1A:{x:44.34,  y:57.67},  s2A:{x:54.7,   y:57.67},  s3A:{x:65.47,  y:57.67},  tA:{x:75.07,  y:57.67},
+                 nameB:{x:29.97,  y:63.93},  s1B:{x:44.2,   y:64.03},  s2B:{x:54.83,  y:63.93},  s3B:{x:65.47,  y:63.93},  tB:{x:75.1492,y:63.8932}},
+      pa_fin_c3:{nameA:{x:29.49,  y:86},     s1A:{x:44.06,  y:85.91},  s2A:{x:54.77,  y:85.91},  s3A:{x:65.33,  y:85.91},  tA:{x:75.0571,y:85.822},
+                 nameB:{x:29.4236,y:91.9804},s1B:{x:44.34,  y:92.17},  s2B:{x:54.83,  y:92.17},  s3B:{x:65.33,  y:92.17},  tB:{x:75.1031,y:92.1645}}
     }
   };
 }
@@ -154,25 +154,29 @@ function renderHandles(){
   const d = DISC[currentDisc];
   const discCal = cal[currentDisc] || {};
 
-  const scoreFields = d.type==='score'
-    ? [{f:'sA',  label:'GOL-A', cls:'t1'}, {f:'sB',  label:'GOL-B', cls:'t2'}]
-    : [{f:'s1A', label:'S1-A',  cls:'t1'}, {f:'s2A', label:'S2-A', cls:'t1'},
-       {f:'s3A', label:'S3-A',  cls:'t1'}, {f:'tA',  label:'TOT-A',cls:'t1'},
-       {f:'s1B', label:'S1-B',  cls:'t2'}, {f:'s2B', label:'S2-B', cls:'t2'},
-       {f:'s3B', label:'S3-B',  cls:'t2'}, {f:'tB',  label:'TOT-B',cls:'t2'}];
+  // cls para scores se calcula en tiempo de render usando m.cA / m.cB
+  const scoreFieldDefs = d.type==='score'
+    ? [{f:'sA',  label:'GOL-A', side:'A'}, {f:'sB',  label:'GOL-B', side:'B'}]
+    : [{f:'s1A', label:'S1-A',  side:'A'}, {f:'s2A', label:'S2-A', side:'A'},
+       {f:'s3A', label:'S3-A',  side:'A'}, {f:'tA',  label:'TOT-A',side:'A'},
+       {f:'s1B', label:'S1-B',  side:'B'}, {f:'s2B', label:'S2-B', side:'B'},
+       {f:'s3B', label:'S3-B',  side:'B'}, {f:'tB',  label:'TOT-B',side:'B'}];
 
   d.matches.forEach(m => {
     const mc = discCal[m.id] || {};
 
-    // Name handles
-    [{f:'nameA', label:'EqA '+m.label, cls:'t1 name'}, {f:'nameB', label:'EqB '+m.label, cls:'t2 name'}].forEach(({f,label,cls}) => {
+    // Name handles — color de manija según el color real de la cápsula (t2=naranja, t1=cyan)
+    [{f:'nameA', label:'EqA '+m.label, color:m.cA}, {f:'nameB', label:'EqB '+m.label, color:m.cB}].forEach(({f,label,color}) => {
+      const cls = (color === 'orange' ? 't2' : 't1') + ' name';
       const pos = mc[f] || {x:50, y:50};
       const el = makeHandle(pos, label, cls, m.id, f);
       container.appendChild(el);
     });
 
-    // Score handles
-    scoreFields.forEach(({f, label, cls}) => {
+    // Score handles — mismo color que la cápsula del equipo correspondiente
+    scoreFieldDefs.forEach(({f, label, side}) => {
+      const color = side === 'A' ? m.cA : m.cB;
+      const cls = color === 'orange' ? 't2' : 't1';
       const pos = mc[f] || {x:50, y:50};
       const el = makeHandle(pos, label+' '+m.label, cls, m.id, f);
       container.appendChild(el);
