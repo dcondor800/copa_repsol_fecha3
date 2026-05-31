@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Copa Repsol — Calibrador Fecha 3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#071629;color:#fff}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:#0d2144;border-bottom:1px solid #1a3a60}
+.top-bar h1{font-size:16px;color:#4dd9e8}.top-bar h1 em{color:#e8521a;font-style:normal}
+.top-bar nav a{color:#4dd9e8;text-decoration:none;padding:5px 12px;border:1px solid #4dd9e8;border-radius:5px;font-size:12px;font-weight:600;margin-left:8px;transition:.2s}
+.top-bar nav a:hover{background:#4dd9e8;color:#071629}
+.cal-toolbar{display:flex;align-items:center;gap:10px;padding:12px 18px;background:#0d2144;border-bottom:1px solid #1a3a60;flex-wrap:wrap}
+.cal-toolbar label{color:#8899aa;font-size:13px}
+.cal-toolbar select{padding:6px 10px;background:#071629;border:1px solid #4dd9e8;border-radius:6px;color:#fff;font-size:13px;cursor:pointer}
+.btn{padding:7px 16px;border:none;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer;transition:.2s}
+.btn-save{background:#e8521a;color:#fff}.btn-save:hover{background:#ff6530}
+.btn-reset{background:#1a3a60;color:#4dd9e8;border:1px solid #4dd9e8}.btn-reset:hover{background:#4dd9e8;color:#071629}
+.btn-copy{background:#1a5c30;color:#4eff99;border:1px solid #4eff99}.btn-copy:hover{background:#4eff99;color:#071629}
+.coord-badge{margin-left:auto;background:#071629;border:1px solid #1a3a60;border-radius:6px;padding:6px 12px;font-family:monospace;font-size:13px;color:#4dd9e8;min-width:160px;text-align:center}
+.fs-ctrl{display:flex;align-items:center;gap:6px;font-size:12px;color:#8899aa}
+.fs-ctrl input{width:90px;accent-color:#e8521a}
+.legend{display:flex;gap:14px;padding:8px 18px;font-size:11px;color:#8899aa;border-bottom:1px solid #1a3a60;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px}
+.leg-box{width:12px;height:12px;border-radius:3px}
+.cal-area{padding:16px 18px;overflow:auto}
+.img-container{position:relative;display:inline-block;line-height:0;cursor:crosshair;user-select:none;max-width:100%}
+.img-container img{display:block;max-width:100%}
+.drag-handle{position:absolute;transform:translate(-50%,-50%);border-radius:4px;padding:2px 5px;font-size:10px;font-weight:800;line-height:1.4;cursor:grab;white-space:nowrap;border:1px solid rgba(0,0,0,.3);box-shadow:0 1px 4px rgba(0,0,0,.5);transition:box-shadow .1s;user-select:none}
+.drag-handle:active{cursor:grabbing;box-shadow:0 2px 8px rgba(0,0,0,.8);z-index:100}
+.drag-handle.t1{background:rgba(77,217,232,.85);color:#071629}
+.drag-handle.t2{background:rgba(232,82,26,.85);color:#fff}
+.drag-handle.name{outline:2px solid #000;font-size:11px}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Copa <em>Repsol</em> — Calibrador Fecha 3</h1>
+  <nav>
+    <a href="admin.html">Admin</a>
+    <a href="display.html" target="_blank">Display</a>
+  </nav>
+</div>
+
+<div class="cal-toolbar">
+  <label>Disciplina:</label>
+  <select id="discSel" onchange="loadDisc(this.value)">
+    <option value="fm">Fútbol Masculino</option>
+    <option value="ff">Fútbol Femenino</option>
+    <option value="vo">Vóley Mixto</option>
+    <option value="pa">Pádel</option>
+  </select>
+  <div class="fs-ctrl">
+    <span>Tamaño:</span>
+    <input type="range" id="fsSlider" min="8" max="30" value="13" oninput="onFsChange(this.value)">
+    <span id="fsVal">13px</span>
+  </div>
+  <button class="btn btn-save"  onclick="saveCal()">💾 Guardar</button>
+  <button class="btn btn-reset" onclick="resetDisc()">↺ Restablecer</button>
+  <button class="btn btn-copy"  onclick="copyJSON()">📋 Copiar JSON</button>
+  <div class="coord-badge" id="coordBadge">x: — &nbsp; y: —</div>
+</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-box" style="background:rgba(77,217,232,.85)"></div> Equipo A (scores)</div>
+  <div class="leg-item"><div class="leg-box" style="background:rgba(232,82,26,.85)"></div> Equipo B (scores)</div>
+  <div class="leg-item"><div class="leg-box" style="background:rgba(77,217,232,.85);outline:2px solid #000"></div> Nombres</div>
+</div>
+
+<div class="cal-area">
+  <div class="img-container" id="imgContainer">
+    <img id="calImg" src="" alt="">
+  </div>
+</div>
+
+<script>
+const DISC = {
+  fm: { name:'Fútbol Masculino', image:'futbol_masculino.jpg', type:'score', matches:[
+    {id:'fm_sf_c1',  label:'SF C1', cA:'orange', cB:'orange'},
+    {id:'fm_sf_c3',  label:'SF C3', cA:'orange', cB:'orange'},
+    {id:'fm_fin_c2', label:'FIN C2',cA:'orange', cB:'orange'}
+  ]},
+  ff: { name:'Fútbol Femenino', image:'futbol_femenino.jpg', type:'score', matches:[
+    {id:'ff_fin_c2', label:'FIN C2', cA:'cyan', cB:'cyan'}
+  ]},
+  vo: { name:'Vóley Mixto', image:'voley.png', type:'sets', matches:[
+    {id:'vo_sf_c1',  label:'SF C1', cA:'orange', cB:'white'},
+    {id:'vo_sf_c2',  label:'SF C2', cA:'cyan',   cB:'white'},
+    {id:'vo_fin_c1', label:'FIN C1',cA:'orange', cB:'white'}
+  ]},
+  pa: { name:'Pádel', image:'padel.png', type:'sets', matches:[
+    {id:'pa_sf_c1',  label:'SF C1', cA:'orange', cB:'white'},
+    {id:'pa_sf_c2',  label:'SF C2', cA:'cyan',   cB:'white'},
+    {id:'pa_fin_c3', label:'FIN C3',cA:'orange', cB:'white'}
+  ]}
+};
+
+const CAL_KEY = 'fecha3_cal';
+
+function defaultCal(){
+  return {
+    fm:{
+      fm_sf_c1: {nameA:{x:30.5372,y:36.5485},sA:{x:43.4855,y:36.7103},sB:{x:57.1262,y:36.6025},nameB:{x:68.9531,y:36.4946}},
+      fm_sf_c3: {nameA:{x:30.0113,y:52.9307},sA:{x:43.4045,y:52.9846},sB:{x:57.0049,y:52.7689},nameB:{x:69.479, y:52.9306}},
+      fm_fin_c2:{nameA:{x:29.6068,y:81.2203},sA:{x:43.3236,y:81.2743},sB:{x:57.0858,y:81.3282},nameB:{x:68.4676,y:81.2743}}
+    },
+    ff:{
+      ff_fin_c2:{nameA:{x:28.3932,y:58.3482},sA:{x:42.5146,y:58.1864},sB:{x:57.6926,y:58.2943},nameB:{x:71.623, y:58.3482}}
+    },
+    vo:{
+      vo_sf_c1: {nameA:{x:30.0221,y:33.6378},s1A:{x:44.5304,y:33.6378},s2A:{x:54.6225,y:33.6378},s3A:{x:64.8527,y:33.6378},tA:{x:74.7348,y:33.822},
+                 nameB:{x:30.3444,y:40.4715},s1B:{x:44.3923,y:40.2873},s2B:{x:54.4843,y:40.3487},s3B:{x:65.221, y:40.2259},tB:{x:74.7348,y:40.5942}},
+      vo_sf_c2: {nameA:{x:29.7459,y:56.612}, s1A:{x:44.3002,y:56.8576},s2A:{x:54.8067,y:56.4892},s3A:{x:65.0829,y:56.5506},tA:{x:74.5046,y:56.6734},
+                 nameB:{x:29.8379,y:63.2001},s1B:{x:54.7514,y:63.1387},s2B:{x:44.4014,y:63.2615},s3B:{x:65.0829,y:63.2615},tB:{x:74.5506,y:63.0773}},
+      vo_fin_c1:{nameA:{x:28.9171,y:85.1289},s1A:{x:44.3923,y:84.822}, s2A:{x:54.6685,y:84.9448},s3A:{x:64.6225,y:84.8834},tA:{x:74.5506,y:85.0061},
+                 nameB:{x:29.2394,y:91.1031},s1B:{x:44.3462,y:91.1645},s2B:{x:54.9448,y:91.1031},s3B:{x:65.1289,y:91.0417},tB:{x:74.8729,y:91.1645}}
+    },
+    pa:{
+      pa_sf_c1: {nameA:{x:28.5948,y:35.4358},s1A:{x:44.0239,y:35.1289},s2A:{x:54.3462,y:34.9448},s3A:{x:65.0368,y:35.3131},tA:{x:74.8269,y:35.2517},
+                 nameB:{x:29.1013,y:41.717}, s1B:{x:44.3462,y:41.7784},s2B:{x:54.8066,y:41.5328},s3B:{x:65.175, y:41.5942},tB:{x:74.7348,y:41.4101}},
+      pa_sf_c2: {nameA:{x:29.3775,y:57.1823},s1A:{x:44.2081,y:57.2437},s2A:{x:54.3462,y:57.5506},s3A:{x:65.1289,y:57.4893},tA:{x:74.919, y:57.4893},
+                 nameB:{x:29.4696,y:63.7704},s1B:{x:44.3923,y:63.8318},s2B:{x:54.8527,y:63.8932},s3B:{x:65.3131,y:63.8932},tB:{x:75.1492,y:63.8932}},
+      pa_fin_c3:{nameA:{x:29.2855,y:85.7606},s1A:{x:44.07,  y:85.5764},s2A:{x:54.5764,y:85.5764},s3A:{x:65.1289,y:85.6378},tA:{x:75.0571,y:85.822},
+                 nameB:{x:29.4236,y:91.9804},s1B:{x:44.2081,y:91.8576},s2B:{x:54.8527,y:91.7348},s3B:{x:64.9908,y:91.919}, tB:{x:75.1031,y:92.1645}}
+    }
+  };
+}
+
+function loadCal(){ try{ return JSON.parse(localStorage.getItem(CAL_KEY)||'null') || defaultCal(); }catch{ return defaultCal(); } }
+
+let cal = loadCal();
+let currentDisc = 'fm';
+let handleFs = 13;
+
+function onFsChange(v){
+  handleFs = parseInt(v);
+  document.getElementById('fsVal').textContent = v + 'px';
+  renderHandles();
+}
+
+function loadDisc(disc){
+  currentDisc = disc;
+  const d = DISC[disc];
+  const img = document.getElementById('calImg');
+  img.onload = renderHandles;
+  img.src = d.image;
+  if (img.complete && img.naturalWidth > 0) renderHandles();
+}
+
+function renderHandles(){
+  const container = document.getElementById('imgContainer');
+  container.querySelectorAll('.drag-handle').forEach(e=>e.remove());
+  const d = DISC[currentDisc];
+  const discCal = cal[currentDisc] || {};
+
+  const scoreFields = d.type==='score'
+    ? [{f:'sA',  label:'GOL-A', cls:'t1'}, {f:'sB',  label:'GOL-B', cls:'t2'}]
+    : [{f:'s1A', label:'S1-A',  cls:'t1'}, {f:'s2A', label:'S2-A', cls:'t1'},
+       {f:'s3A', label:'S3-A',  cls:'t1'}, {f:'tA',  label:'TOT-A',cls:'t1'},
+       {f:'s1B', label:'S1-B',  cls:'t2'}, {f:'s2B', label:'S2-B', cls:'t2'},
+       {f:'s3B', label:'S3-B',  cls:'t2'}, {f:'tB',  label:'TOT-B',cls:'t2'}];
+
+  d.matches.forEach(m => {
+    const mc = discCal[m.id] || {};
+
+    // Name handles
+    [{f:'nameA', label:'EqA '+m.label, cls:'t1 name'}, {f:'nameB', label:'EqB '+m.label, cls:'t2 name'}].forEach(({f,label,cls}) => {
+      const pos = mc[f] || {x:50, y:50};
+      const el = makeHandle(pos, label, cls, m.id, f);
+      container.appendChild(el);
+    });
+
+    // Score handles
+    scoreFields.forEach(({f, label, cls}) => {
+      const pos = mc[f] || {x:50, y:50};
+      const el = makeHandle(pos, label+' '+m.label, cls, m.id, f);
+      container.appendChild(el);
+    });
+  });
+
+  updateCoord(null);
+}
+
+function makeHandle(pos, label, cls, matchId, field){
+  const el = document.createElement('div');
+  el.className = 'drag-handle ' + cls;
+  el.style.left = pos.x + '%';
+  el.style.top  = pos.y + '%';
+  el.style.fontSize = handleFs + 'px';
+  el.textContent = label;
+  el.dataset.matchId = matchId;
+  el.dataset.field   = field;
+  makeDraggable(el);
+  return el;
+}
+
+function makeDraggable(el){
+  el.addEventListener('mousedown', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    const container = document.getElementById('imgContainer');
+    const rect = container.getBoundingClientRect();
+
+    function onMove(ev){
+      const x = Math.max(0, Math.min(100, ((ev.clientX-rect.left)/rect.width)*100));
+      const y = Math.max(0, Math.min(100, ((ev.clientY-rect.top)/rect.height)*100));
+      el.style.left = x.toFixed(2)+'%';
+      el.style.top  = y.toFixed(2)+'%';
+      updateCoord({x, y});
+      // Update cal object live
+      const {matchId, field} = el.dataset;
+      if (!cal[currentDisc]) cal[currentDisc]={};
+      if (!cal[currentDisc][matchId]) cal[currentDisc][matchId]={};
+      cal[currentDisc][matchId][field] = {x:parseFloat(x.toFixed(2)), y:parseFloat(y.toFixed(2))};
+    }
+    function onUp(){
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+function updateCoord(pos){
+  const badge = document.getElementById('coordBadge');
+  badge.textContent = pos ? `x: ${pos.x.toFixed(1)}%  y: ${pos.y.toFixed(1)}%` : 'x: —  y: —';
+}
+
+function saveCal(){
+  localStorage.setItem(CAL_KEY, JSON.stringify(cal));
+  const badge = document.getElementById('coordBadge');
+  const orig = badge.textContent;
+  badge.textContent = '✓ Guardado en localStorage';
+  badge.style.color = '#22ff88';
+  setTimeout(()=>{ badge.textContent=orig; badge.style.color=''; }, 1800);
+}
+
+function resetDisc(){
+  if (!confirm(`¿Restablecer calibración de ${DISC[currentDisc].name}?`)) return;
+  cal[currentDisc] = defaultCal()[currentDisc];
+  renderHandles();
+}
+
+function copyJSON(){
+  const text = JSON.stringify(cal, null, 2);
+  const badge = document.getElementById('coordBadge');
+  const show = (msg, color) => { badge.textContent=msg; badge.style.color=color; setTimeout(()=>{ badge.textContent='x: —  y: —'; badge.style.color=''; }, 2200); };
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(()=>show('✓ JSON copiado','#4eff99'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:10px;left:10px;width:90vw;height:80vh;z-index:9999;font-size:11px;font-family:monospace;background:#071629;color:#4eff99;border:2px solid #4eff99;padding:10px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    const btn = document.createElement('button');
+    btn.textContent='Cerrar';
+    btn.style.cssText='position:fixed;top:10px;right:10px;z-index:10000;padding:8px 16px;background:#e8521a;color:#fff;border:none;border-radius:6px;cursor:pointer';
+    btn.onclick=()=>{ ta.remove(); btn.remove(); };
+    document.body.appendChild(btn);
+    show('✓ JSON copiado','#4eff99');
+  }
+}
+
+loadDisc('fm');
+</script>
+</body>
+</html>

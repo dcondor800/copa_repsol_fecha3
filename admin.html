@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Copa Repsol — Admin Fecha 3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#071629;color:#fff;min-height:100vh}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#0d2144;border-bottom:1px solid #1a3a60}
+.top-bar h1{font-size:17px;color:#4dd9e8}.top-bar h1 em{color:#e8521a;font-style:normal}
+.top-bar nav a{color:#4dd9e8;text-decoration:none;padding:6px 14px;border:1px solid #4dd9e8;border-radius:6px;font-size:13px;font-weight:600;margin-left:8px;transition:.2s}
+.top-bar nav a:hover{background:#4dd9e8;color:#071629}
+.tab-bar{display:flex;background:#0a1e38;border-bottom:2px solid #1a3a60}
+.tab-btn{padding:11px 20px;background:transparent;border:none;color:rgba(255,255,255,.5);font-size:13px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab-btn.active{color:#4dd9e8;border-color:#e8521a}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,.8)}
+.tab-panel{display:none;padding:22px 20px}.tab-panel.active{display:block}
+.sec-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;padding-bottom:6px;border-bottom:1px solid #1a3a60;margin-bottom:10px;margin-top:18px}
+.sec-label:first-child{margin-top:0}
+/* Football match */
+.match-card{background:#0d2144;border-radius:10px;padding:13px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.campo-badge{font-size:10px;color:rgba(255,255,255,.35);width:100%;margin-bottom:2px}
+.name-inp{flex:1;min-width:90px;max-width:160px;padding:7px 12px;border-radius:22px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:13px;font-weight:700;outline:none;text-align:center}
+.name-inp::placeholder{color:rgba(255,255,255,.2);font-weight:400}
+.name-inp:focus{border-color:#4dd9e8}
+.score-inp{width:48px;height:42px;text-align:center;font-size:21px;font-weight:900;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#fff;color:#111;outline:none}
+.score-inp:focus{border-color:#e8521a}
+.vs{font-size:12px;color:rgba(255,255,255,.35);font-weight:700}
+/* Sets match */
+.sets-card{background:#0d2144;border-radius:10px;padding:13px 16px;margin-bottom:8px}
+.team-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.team-row:last-child{margin-bottom:0}
+.set-inp{width:38px;height:34px;text-align:center;font-size:15px;font-weight:900;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:#fff;color:#111;outline:none}
+.set-inp:focus{border-color:#e8521a}
+.set-inp.tot{width:48px;border-color:rgba(232,82,26,.5)}
+.team-div{border:none;border-top:1px solid #1a3a60;margin:6px 0}
+.toast{position:fixed;bottom:20px;right:20px;background:#1a3a1a;border:1px solid #2d7a2d;color:#7fe07f;padding:9px 18px;border-radius:20px;font-size:12px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+.export-btn{display:block;width:100%;margin-top:18px;padding:11px 20px;background:#1a5c30;color:#4eff99;border:1px solid #4eff99;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s}
+.export-btn:hover{background:#4eff99;color:#071629}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Copa <em>Repsol</em> — Admin Fecha 3</h1>
+  <nav>
+    <a href="display.html"  target="_blank">Display</a>
+    <a href="calibrar.html" target="_blank">Calibrar</a>
+  </nav>
+</div>
+
+<div class="tab-bar" id="tabBar"></div>
+<div id="panels"></div>
+<div class="toast" id="toast">✓ Guardado</div>
+
+<script>
+const DISC = {
+  fm: { name:'Fútbol Masculino', image:'futbol_masculino.jpg', type:'score', matches:[
+    {id:'fm_sf_c1',  sec:'Semifinal', campo:'Campo 1', cA:'orange', cB:'orange'},
+    {id:'fm_sf_c3',  sec:'Semifinal', campo:'Campo 3', cA:'orange', cB:'orange'},
+    {id:'fm_fin_c2', sec:'Final',     campo:'Campo 2', cA:'orange', cB:'orange'}
+  ]},
+  ff: { name:'Fútbol Femenino', image:'futbol_femenino.jpg', type:'score', matches:[
+    {id:'ff_fin_c2', sec:'Final', campo:'Campo 2', cA:'cyan', cB:'cyan'}
+  ]},
+  vo: { name:'Vóley Mixto', image:'voley.png', type:'sets', matches:[
+    {id:'vo_sf_c1',  sec:'Semifinal', campo:'Campo 1', cA:'orange', cB:'white'},
+    {id:'vo_sf_c2',  sec:'Semifinal', campo:'Campo 2', cA:'cyan',   cB:'white'},
+    {id:'vo_fin_c1', sec:'Final',     campo:'Campo 1', cA:'orange', cB:'white'}
+  ]},
+  pa: { name:'Pádel', image:'padel.png', type:'sets', matches:[
+    {id:'pa_sf_c1',  sec:'Semifinal', campo:'Campo 1', cA:'orange', cB:'white'},
+    {id:'pa_sf_c2',  sec:'Semifinal', campo:'Campo 2', cA:'cyan',   cB:'white'},
+    {id:'pa_fin_c3', sec:'Final',     campo:'Campo 3', cA:'orange', cB:'white'}
+  ]}
+};
+
+const SCORE_KEY = 'fecha3_scores';
+function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)||'{}'); }catch{ return {}; } }
+
+let toastTimer;
+function save(k, v){
+  const s = getScores();
+  v==='' ? delete s[k] : (s[k]=v);
+  localStorage.setItem(SCORE_KEY, JSON.stringify(s));
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 1400);
+}
+
+function inp(k, cls, scores, ph){
+  const v = scores[k] !== undefined ? String(scores[k]).replace(/"/g,'&quot;') : '';
+  return `<input type="text" maxlength="${cls.includes('name')?22:2}" class="${cls}" value="${v}" placeholder="${ph||'–'}" oninput="save('${k}',this.value)">`;
+}
+
+function buildScore(m, scores){
+  return `<div class="match-card">
+    <div class="campo-badge">${m.campo}</div>
+    ${inp(m.id+'_nameA','name-inp',scores,'Equipo A')}
+    ${inp(m.id+'_sA','score-inp',scores)}
+    <span class="vs">vs</span>
+    ${inp(m.id+'_sB','score-inp',scores)}
+    ${inp(m.id+'_nameB','name-inp',scores,'Equipo B')}
+  </div>`;
+}
+
+function buildSets(m, scores){
+  return `<div class="sets-card">
+    <div class="campo-badge">${m.campo}</div>
+    <div class="team-row">
+      ${inp(m.id+'_nameA','name-inp',scores,'Equipo A')}
+      ${inp(m.id+'_s1A','set-inp',scores)}
+      ${inp(m.id+'_s2A','set-inp',scores)}
+      ${inp(m.id+'_s3A','set-inp',scores)}
+      ${inp(m.id+'_tA','set-inp tot',scores)}
+    </div>
+    <hr class="team-div">
+    <div class="team-row">
+      ${inp(m.id+'_nameB','name-inp',scores,'Equipo B')}
+      ${inp(m.id+'_s1B','set-inp',scores)}
+      ${inp(m.id+'_s2B','set-inp',scores)}
+      ${inp(m.id+'_s3B','set-inp',scores)}
+      ${inp(m.id+'_tB','set-inp tot',scores)}
+    </div>
+  </div>`;
+}
+
+function buildPanel(key){
+  const d = DISC[key];
+  const scores = getScores();
+  const sections = {};
+  d.matches.forEach(m => { if(!sections[m.sec]) sections[m.sec]=[]; sections[m.sec].push(m); });
+  const html = Object.entries(sections).map(([sec, matches]) =>
+    `<div class="sec-label">${sec}</div>` +
+    matches.map(m => d.type==='score' ? buildScore(m,scores) : buildSets(m,scores)).join('')
+  ).join('');
+  return html + `<button class="export-btn" onclick="exportImg('${key}')">⬇ Exportar imagen — ${d.name}</button>`;
+}
+
+function init(){
+  const bar = document.getElementById('tabBar');
+  const panels = document.getElementById('panels');
+  Object.keys(DISC).forEach((key,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn'+(i===0?' active':'');
+    btn.dataset.key = key;
+    btn.textContent = DISC[key].name;
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.key===key));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.key===key));
+    };
+    bar.appendChild(btn);
+    const p = document.createElement('div');
+    p.className = 'tab-panel'+(i===0?' active':'');
+    p.dataset.key = key;
+    p.innerHTML = buildPanel(key);
+    panels.appendChild(p);
+  });
+}
+
+init();
+
+/* ── Exportar imagen ── */
+const CAL_KEY = 'fecha3_cal';
+const COLORS  = {orange:'#e8471c', cyan:'#00c8e8', white:'#ffffff'};
+
+function defaultCal(){
+  return {
+    fm:{
+      fm_sf_c1: {nameA:{x:30.5372,y:36.5485},sA:{x:43.4855,y:36.7103},sB:{x:57.1262,y:36.6025},nameB:{x:68.9531,y:36.4946}},
+      fm_sf_c3: {nameA:{x:30.0113,y:52.9307},sA:{x:43.4045,y:52.9846},sB:{x:57.0049,y:52.7689},nameB:{x:69.479, y:52.9306}},
+      fm_fin_c2:{nameA:{x:29.6068,y:81.2203},sA:{x:43.3236,y:81.2743},sB:{x:57.0858,y:81.3282},nameB:{x:68.4676,y:81.2743}}
+    },
+    ff:{
+      ff_fin_c2:{nameA:{x:28.3932,y:58.3482},sA:{x:42.5146,y:58.1864},sB:{x:57.6926,y:58.2943},nameB:{x:71.623, y:58.3482}}
+    },
+    vo:{
+      vo_sf_c1: {nameA:{x:30.0221,y:33.6378},s1A:{x:44.5304,y:33.6378},s2A:{x:54.6225,y:33.6378},s3A:{x:64.8527,y:33.6378},tA:{x:74.7348,y:33.822},
+                 nameB:{x:30.3444,y:40.4715},s1B:{x:44.3923,y:40.2873},s2B:{x:54.4843,y:40.3487},s3B:{x:65.221, y:40.2259},tB:{x:74.7348,y:40.5942}},
+      vo_sf_c2: {nameA:{x:29.7459,y:56.612}, s1A:{x:44.3002,y:56.8576},s2A:{x:54.8067,y:56.4892},s3A:{x:65.0829,y:56.5506},tA:{x:74.5046,y:56.6734},
+                 nameB:{x:29.8379,y:63.2001},s1B:{x:54.7514,y:63.1387},s2B:{x:44.4014,y:63.2615},s3B:{x:65.0829,y:63.2615},tB:{x:74.5506,y:63.0773}},
+      vo_fin_c1:{nameA:{x:28.9171,y:85.1289},s1A:{x:44.3923,y:84.822}, s2A:{x:54.6685,y:84.9448},s3A:{x:64.6225,y:84.8834},tA:{x:74.5506,y:85.0061},
+                 nameB:{x:29.2394,y:91.1031},s1B:{x:44.3462,y:91.1645},s2B:{x:54.9448,y:91.1031},s3B:{x:65.1289,y:91.0417},tB:{x:74.8729,y:91.1645}}
+    },
+    pa:{
+      pa_sf_c1: {nameA:{x:28.5948,y:35.4358},s1A:{x:44.0239,y:35.1289},s2A:{x:54.3462,y:34.9448},s3A:{x:65.0368,y:35.3131},tA:{x:74.8269,y:35.2517},
+                 nameB:{x:29.1013,y:41.717}, s1B:{x:44.3462,y:41.7784},s2B:{x:54.8066,y:41.5328},s3B:{x:65.175, y:41.5942},tB:{x:74.7348,y:41.4101}},
+      pa_sf_c2: {nameA:{x:29.3775,y:57.1823},s1A:{x:44.2081,y:57.2437},s2A:{x:54.3462,y:57.5506},s3A:{x:65.1289,y:57.4893},tA:{x:74.919, y:57.4893},
+                 nameB:{x:29.4696,y:63.7704},s1B:{x:44.3923,y:63.8318},s2B:{x:54.8527,y:63.8932},s3B:{x:65.3131,y:63.8932},tB:{x:75.1492,y:63.8932}},
+      pa_fin_c3:{nameA:{x:29.2855,y:85.7606},s1A:{x:44.07,  y:85.5764},s2A:{x:54.5764,y:85.5764},s3A:{x:65.1289,y:85.6378},tA:{x:75.0571,y:85.822},
+                 nameB:{x:29.4236,y:91.9804},s1B:{x:44.2081,y:91.8576},s2B:{x:54.8527,y:91.7348},s3B:{x:64.9908,y:91.919}, tB:{x:75.1031,y:92.1645}}
+    }
+  };
+}
+
+function getCal(){ try{ return JSON.parse(localStorage.getItem(CAL_KEY)||'null') || defaultCal(); }catch{ return defaultCal(); } }
+
+function exportImg(key){
+  const d = DISC[key];
+  const scores = getScores();
+  const cal = getCal();
+  const img = new Image();
+  img.onload = function(){
+    const W = img.naturalWidth, H = img.naturalHeight;
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    pintarTodo(ctx, key, d, scores, cal, W, H);
+    try {
+      cv.toBlob(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${key}_fecha3_resultados.png`;
+        a.click();
+        setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+      }, 'image/png');
+    } catch(e){ abrirVentana(key, d, scores, cal); }
+  };
+  img.onerror = ()=>abrirVentana(key, d, scores, cal);
+  img.crossOrigin = 'anonymous';
+  img.src = d.image;
+}
+
+function pintarTodo(ctx, key, d, scores, cal, W, H){
+  const dc = cal[key] || {};
+  d.matches.forEach(m => {
+    const mc = dc[m.id] || {};
+    // Nombres de equipos
+    ['nameA','nameB'].forEach(f => {
+      const pos = mc[f], val = scores[m.id+'_'+f];
+      if (!pos || !val) return;
+      ctx.fillStyle = COLORS[f==='nameA' ? m.cA : m.cB] || '#fff';
+      ctx.font = '700 30px Arial, sans-serif';
+      ctx.fillText(String(val), (pos.x/100)*W, (pos.y/100)*H);
+    });
+    // Scores / Sets
+    const scoreFs = d.type==='score' ? ['sA','sB'] : ['s1A','s2A','s3A','tA','s1B','s2B','s3B','tB'];
+    scoreFs.forEach(f => {
+      const pos = mc[f], val = scores[m.id+'_'+f];
+      if (!pos || val===undefined || val==='') return;
+      const isFut = d.type==='score', isTotal = f==='tA'||f==='tB';
+      ctx.fillStyle = '#111111';
+      ctx.font = `900 ${isFut?48:isTotal?36:28}px Arial, sans-serif`;
+      ctx.fillText(String(val), (pos.x/100)*W, (pos.y/100)*H);
+    });
+  });
+}
+
+function abrirVentana(key, d, scores, cal){
+  const imgUrl = new URL(d.image, location.href).href;
+  const dc = cal[key] || {};
+  let spans = '';
+  d.matches.forEach(m => {
+    const mc = dc[m.id] || {};
+    ['nameA','nameB'].forEach(f => {
+      const pos = mc[f], val = scores[m.id+'_'+f];
+      if (!pos || !val) return;
+      const color = COLORS[f==='nameA' ? m.cA : m.cB] || '#fff';
+      spans += `<span style="position:absolute;left:${pos.x}%;top:${pos.y}%;transform:translate(-50%,-50%);font-weight:700;color:${color};font-size:2.2vw;line-height:1;font-family:Arial,sans-serif;pointer-events:none">${val}</span>`;
+    });
+    const scoreFs = d.type==='score' ? ['sA','sB'] : ['s1A','s2A','s3A','tA','s1B','s2B','s3B','tB'];
+    scoreFs.forEach(f => {
+      const pos = mc[f], val = scores[m.id+'_'+f];
+      if (!pos || val===undefined || val==='') return;
+      const isFut = d.type==='score', isTotal = f==='tA'||f==='tB';
+      const fs = isFut ? '4.5vw' : isTotal ? '3.2vw' : '2.6vw';
+      spans += `<span style="position:absolute;left:${pos.x}%;top:${pos.y}%;transform:translate(-50%,-50%);font-weight:900;color:#111;font-size:${fs};line-height:1;font-family:Arial,sans-serif;pointer-events:none">${val}</span>`;
+    });
+  });
+  const popup = window.open('', '_blank', `width=${screen.width},height=${screen.height},scrollbars=yes`);
+  if (!popup){ alert('Permite ventanas emergentes para este sitio.'); return; }
+  popup.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${d.name} — Fecha 3</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000}.bar{background:#0d2144;padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.frame{position:relative;line-height:0}.frame img{width:100%;display:block}@media print{.bar{display:none!important}}</style>
+</head><body>
+<div class="bar">
+  <span style="color:#4dd9e8;font:bold 14px Arial;flex:1">Copa Repsol Fecha 3 — ${d.name}</span>
+  <span style="color:#aaa;font:12px Arial">💡 Win+Shift+S para capturar &nbsp;|&nbsp; o</span>
+  <button onclick="window.print()" style="padding:7px 16px;background:#e8521a;border:none;border-radius:6px;color:#fff;font-weight:700;font-size:13px;cursor:pointer">🖨 Guardar PDF</button>
+  <button onclick="window.close()" style="padding:7px 14px;background:#1a3a60;border:none;border-radius:6px;color:#ccc;font-size:13px;cursor:pointer">✕</button>
+</div>
+<div class="frame"><img src="${imgUrl}">${spans}</div>
+</body></html>`);
+  popup.document.close();
+}
+</script>
+</body>
+</html>

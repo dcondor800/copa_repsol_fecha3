@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Copa Repsol — Display Fecha 3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;font-family:'Segoe UI',Arial,sans-serif}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:#0d2144;border-bottom:1px solid #1a3a60}
+.top-bar h1{font-size:16px;color:#4dd9e8}.top-bar h1 em{color:#e8521a;font-style:normal}
+.top-bar nav a{color:#4dd9e8;text-decoration:none;padding:5px 12px;border:1px solid #4dd9e8;border-radius:5px;font-size:12px;font-weight:600;margin-left:8px;transition:.2s}
+.top-bar nav a:hover{background:#4dd9e8;color:#071629}
+.tab-bar{display:flex;background:#0a1e38;border-bottom:2px solid #1a3a60}
+.tab-btn{padding:10px 20px;background:transparent;border:none;color:rgba(255,255,255,.5);font-size:13px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab-btn.active{color:#4dd9e8;border-color:#e8521a}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.img-frame{position:relative;max-width:1400px;margin:0 auto;line-height:0}
+.img-frame img{width:100%;display:block}
+.ov{position:absolute;transform:translate(-50%,-50%);font-weight:900;pointer-events:none;white-space:nowrap;font-family:Arial,sans-serif;line-height:1}
+</style>
+</head>
+<body>
+
+<div class="top-bar" id="topBar">
+  <h1>Copa <em>Repsol</em> — Fecha 3</h1>
+  <nav>
+    <a href="admin.html"    target="_blank">Admin</a>
+    <a href="calibrar.html" target="_blank">Calibrar</a>
+    <a href="#" onclick="toggleUI();return false">Ocultar UI</a>
+  </nav>
+</div>
+<div class="tab-bar" id="tabBar"></div>
+<div id="panels"></div>
+
+<script>
+const DISC = {
+  fm: { name:'Fútbol Masculino', image:'futbol_masculino.jpg', type:'score', matches:[
+    {id:'fm_sf_c1',  cA:'orange', cB:'orange'},
+    {id:'fm_sf_c3',  cA:'orange', cB:'orange'},
+    {id:'fm_fin_c2', cA:'orange', cB:'orange'}
+  ]},
+  ff: { name:'Fútbol Femenino', image:'futbol_femenino.jpg', type:'score', matches:[
+    {id:'ff_fin_c2', cA:'cyan', cB:'cyan'}
+  ]},
+  vo: { name:'Vóley Mixto', image:'voley.png', type:'sets', matches:[
+    {id:'vo_sf_c1',  cA:'orange', cB:'white'},
+    {id:'vo_sf_c2',  cA:'cyan',   cB:'white'},
+    {id:'vo_fin_c1', cA:'orange', cB:'white'}
+  ]},
+  pa: { name:'Pádel', image:'padel.png', type:'sets', matches:[
+    {id:'pa_sf_c1',  cA:'orange', cB:'white'},
+    {id:'pa_sf_c2',  cA:'cyan',   cB:'white'},
+    {id:'pa_fin_c3', cA:'orange', cB:'white'}
+  ]}
+};
+
+const SCORE_KEY = 'fecha3_scores';
+const CAL_KEY   = 'fecha3_cal';
+const COLORS    = {orange:'#e8471c', cyan:'#00c8e8', white:'#ffffff'};
+
+function defaultCal(){
+  return {
+    fm:{
+      fm_sf_c1: {nameA:{x:30.5372,y:36.5485},sA:{x:43.4855,y:36.7103},sB:{x:57.1262,y:36.6025},nameB:{x:68.9531,y:36.4946}},
+      fm_sf_c3: {nameA:{x:30.0113,y:52.9307},sA:{x:43.4045,y:52.9846},sB:{x:57.0049,y:52.7689},nameB:{x:69.479, y:52.9306}},
+      fm_fin_c2:{nameA:{x:29.6068,y:81.2203},sA:{x:43.3236,y:81.2743},sB:{x:57.0858,y:81.3282},nameB:{x:68.4676,y:81.2743}}
+    },
+    ff:{
+      ff_fin_c2:{nameA:{x:28.3932,y:58.3482},sA:{x:42.5146,y:58.1864},sB:{x:57.6926,y:58.2943},nameB:{x:71.623, y:58.3482}}
+    },
+    vo:{
+      vo_sf_c1: {nameA:{x:30.0221,y:33.6378},s1A:{x:44.5304,y:33.6378},s2A:{x:54.6225,y:33.6378},s3A:{x:64.8527,y:33.6378},tA:{x:74.7348,y:33.822},
+                 nameB:{x:30.3444,y:40.4715},s1B:{x:44.3923,y:40.2873},s2B:{x:54.4843,y:40.3487},s3B:{x:65.221, y:40.2259},tB:{x:74.7348,y:40.5942}},
+      vo_sf_c2: {nameA:{x:29.7459,y:56.612}, s1A:{x:44.3002,y:56.8576},s2A:{x:54.8067,y:56.4892},s3A:{x:65.0829,y:56.5506},tA:{x:74.5046,y:56.6734},
+                 nameB:{x:29.8379,y:63.2001},s1B:{x:54.7514,y:63.1387},s2B:{x:44.4014,y:63.2615},s3B:{x:65.0829,y:63.2615},tB:{x:74.5506,y:63.0773}},
+      vo_fin_c1:{nameA:{x:28.9171,y:85.1289},s1A:{x:44.3923,y:84.822}, s2A:{x:54.6685,y:84.9448},s3A:{x:64.6225,y:84.8834},tA:{x:74.5506,y:85.0061},
+                 nameB:{x:29.2394,y:91.1031},s1B:{x:44.3462,y:91.1645},s2B:{x:54.9448,y:91.1031},s3B:{x:65.1289,y:91.0417},tB:{x:74.8729,y:91.1645}}
+    },
+    pa:{
+      pa_sf_c1: {nameA:{x:28.5948,y:35.4358},s1A:{x:44.0239,y:35.1289},s2A:{x:54.3462,y:34.9448},s3A:{x:65.0368,y:35.3131},tA:{x:74.8269,y:35.2517},
+                 nameB:{x:29.1013,y:41.717}, s1B:{x:44.3462,y:41.7784},s2B:{x:54.8066,y:41.5328},s3B:{x:65.175, y:41.5942},tB:{x:74.7348,y:41.4101}},
+      pa_sf_c2: {nameA:{x:29.3775,y:57.1823},s1A:{x:44.2081,y:57.2437},s2A:{x:54.3462,y:57.5506},s3A:{x:65.1289,y:57.4893},tA:{x:74.919, y:57.4893},
+                 nameB:{x:29.4696,y:63.7704},s1B:{x:44.3923,y:63.8318},s2B:{x:54.8527,y:63.8932},s3B:{x:65.3131,y:63.8932},tB:{x:75.1492,y:63.8932}},
+      pa_fin_c3:{nameA:{x:29.2855,y:85.7606},s1A:{x:44.07,  y:85.5764},s2A:{x:54.5764,y:85.5764},s3A:{x:65.1289,y:85.6378},tA:{x:75.0571,y:85.822},
+                 nameB:{x:29.4236,y:91.9804},s1B:{x:44.2081,y:91.8576},s2B:{x:54.8527,y:91.7348},s3B:{x:64.9908,y:91.919}, tB:{x:75.1031,y:92.1645}}
+    }
+  };
+}
+
+function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)||'{}'); }catch{ return {}; } }
+function getCal()   { try{ return JSON.parse(localStorage.getItem(CAL_KEY)||'null') || defaultCal(); }catch{ return defaultCal(); } }
+
+function renderOverlays(key, frame){
+  frame.querySelectorAll('.ov').forEach(e=>e.remove());
+  const d = DISC[key];
+  const scores = getScores();
+  const discCal = getCal()[key] || {};
+  const scoreFields = d.type==='score' ? ['sA','sB'] : ['s1A','s2A','s3A','tA','s1B','s2B','s3B','tB'];
+  const nameFields  = ['nameA','nameB'];
+
+  d.matches.forEach(m => {
+    const mc = discCal[m.id] || {};
+
+    // Name overlays
+    nameFields.forEach(f => {
+      const pos = mc[f];
+      const val = scores[m.id+'_'+f];
+      if (!pos || !val) return;
+      const el = document.createElement('span');
+      el.className = 'ov';
+      el.style.left = pos.x + '%';
+      el.style.top  = pos.y + '%';
+      el.style.fontSize = '1.4vw';
+      el.style.color = COLORS[f==='nameA' ? m.cA : m.cB] || '#fff';
+      el.textContent = val;
+      frame.appendChild(el);
+    });
+
+    // Score overlays
+    scoreFields.forEach(f => {
+      const pos = mc[f];
+      const val = scores[m.id+'_'+f];
+      if (!pos || val===undefined || val==='') return;
+      const el = document.createElement('span');
+      el.className = 'ov';
+      el.style.left = pos.x + '%';
+      el.style.top  = pos.y + '%';
+      el.style.fontSize = '1.6vw';
+      el.style.color = '#111';
+      el.textContent = val;
+      frame.appendChild(el);
+    });
+  });
+}
+
+function renderAll(){
+  Object.keys(DISC).forEach(key => {
+    const frame = document.getElementById('frame-'+key);
+    if (frame) renderOverlays(key, frame);
+  });
+}
+
+function init(){
+  const bar = document.getElementById('tabBar');
+  const panels = document.getElementById('panels');
+  Object.keys(DISC).forEach((key,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn'+(i===0?' active':'');
+    btn.dataset.key = key;
+    btn.textContent = DISC[key].name;
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.key===key));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.key===key));
+    };
+    bar.appendChild(btn);
+    const p = document.createElement('div');
+    p.className = 'tab-panel'+(i===0?' active':'');
+    p.dataset.key = key;
+    const frame = document.createElement('div');
+    frame.className = 'img-frame';
+    frame.id = 'frame-'+key;
+    const img = document.createElement('img');
+    img.src = DISC[key].image;
+    img.alt = DISC[key].name;
+    frame.appendChild(img);
+    p.appendChild(frame);
+    panels.appendChild(p);
+  });
+  renderAll();
+}
+
+let uiVisible = true;
+function toggleUI(){
+  uiVisible = !uiVisible;
+  ['topBar','tabBar'].forEach(id=>document.getElementById(id).style.display=uiVisible?'':'none');
+}
+
+window.addEventListener('storage', e => {
+  if (e.key===SCORE_KEY || e.key===CAL_KEY) renderAll();
+});
+
+init();
+</script>
+</body>
+</html>
